@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 namespace jd.boivin.unity.fps
 {
+    // TODO: Add public property for inspectors, etc.
     public class FPSMonitor : MonoBehaviour
     {
         public const int ResetStatsFPS = 200;
@@ -46,10 +47,7 @@ namespace jd.boivin.unity.fps
         private int _averageCount = 1;
         
         private float _resetStatsFPS = ResetStatsFPS;
-
-        private char[] _chars = new char[32];
-        private int _charIndex = 0;
-
+        
         private void Start()
         {
             _fpsGraph = new Graph(FPS);
@@ -98,6 +96,7 @@ namespace jd.boivin.unity.fps
             _fpsGraph.SetAverage(_averageFPS);
             _fpsGraph.Add(fps, _maxFPS * 1.20f);
 
+            // These produce no gc alloc (but will show alloc in editor mode)
             FPSValue.SetText("{0}", (int) fps);
             AverageValue.SetText("{0}", (int) _averageFPS);
             MinValue.SetText("{0}", (int) _minFPS);
@@ -123,6 +122,7 @@ namespace jd.boivin.unity.fps
             _monoGraph.Add(mono, maxRam);
             _reservedGraph.Add(reserved, maxRam);
             
+            // No alloc in build
             AllocatedValue.SetText("{0:2} A", allocated);
             MonoValue.SetText("{0:2} M", mono);
             ReservedValue.SetText("{0:2} R", reserved);

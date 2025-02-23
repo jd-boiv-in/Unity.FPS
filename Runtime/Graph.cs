@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-namespace jd.boivin.unity.fps
+namespace jd.boivin.fps
 {
     public class Graph
     {
@@ -77,6 +77,12 @@ namespace jd.boivin.unity.fps
             _image.material.SetFloat(CautionThreshold, _bad / highest);
             
             _image.material.SetFloat(Average, _average / highest);
+        }
+
+        public void Reset()
+        {
+            _image.material.SetFloat(CautionThreshold, 0);
+            _image.material.SetFloat(GoodThreshold, 0);
         }
     }
 }

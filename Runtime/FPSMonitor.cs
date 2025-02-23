@@ -1,9 +1,10 @@
-﻿using TMPro;
+﻿using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Profiling;
 using UnityEngine.UI;
 
-namespace jd.boivin.unity.fps
+namespace jd.boivin.fps
 {
     // TODO: Add public property for inspectors, etc.
     public class FPSMonitor : MonoBehaviour
@@ -130,6 +131,11 @@ namespace jd.boivin.unity.fps
             AllocatedValue.color = _allocatedColor;
             MonoValue.color = _monoColor;
             ReservedValue.color = _reservedColor;
+        }
+
+        private void OnDestroy()
+        {
+            _fpsGraph.Reset();
         }
     }
 }

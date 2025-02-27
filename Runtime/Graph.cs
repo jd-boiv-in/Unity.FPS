@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-namespace jd.boivin.fps
+namespace JD.FPS
 {
     public class Graph
     {

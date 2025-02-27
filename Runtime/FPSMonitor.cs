@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Profiling;
 using UnityEngine.UI;
 
-namespace jd.boivin.fps
+namespace JD.FPS
 {
     // TODO: Add public property for inspectors, etc.
     public class FPSMonitor : MonoBehaviour

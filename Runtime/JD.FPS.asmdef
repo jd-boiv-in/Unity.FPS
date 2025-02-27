@@ -1,6 +1,6 @@
 {
-    "name": "FPSMonitor",
-    "rootNamespace": "jd.boivin.fps",
+    "name": "JD.FPS",
+    "rootNamespace": "JD.FPS",
     "references": [
         "GUID:6055be8ebefd69e48b49212b09b47b2f"
     ],

@@ -3,6 +3,7 @@
     "version": "1.0.0",
     "displayName": "FPS",
     "description": "Simple FPS monitor",
+    "license": "MIT",
     "dependencies": {
 
     },

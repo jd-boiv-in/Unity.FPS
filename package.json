@@ -1,9 +1,17 @@
 {
     "name": "jd.boiv.in.fps",
-    "displayName": "FPS Monitor",
-    "description": "Simple FPS monitor.",
     "version": "1.0.0",
-    "unity": "2019.3",
-    "license": "MIT",
-    "author": "Jean-Denis Boivin"
+    "displayName": "FPS",
+    "description": "Simple FPS monitor",
+    "dependencies": {
+
+    },
+    "keywords": [
+        "alloc", "coroutine"
+    ],
+    "author": {
+        "name": "Jean-Denis Boivin",
+        "email": "jd@boiv.in",
+        "url": "https://jd.boiv.in"
+    }
 }

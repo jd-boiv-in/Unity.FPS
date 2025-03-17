@@ -40,14 +40,29 @@ namespace JD.FPS
         private Graph _monoGraph;
         private Graph _reservedGraph;
 
-        private float _minFPS;
-        private float _maxFPS;
+        private float _minFPS = 60;
+        private float _maxFPS = 60;
         
         private float _averageFPS = 60f;
-        private float _averageTotal = 0f;
+        private float _averageTotal = 60f;
         private int _averageCount = 1;
         
-        private float _resetStatsFPS = ResetStatsFPS;
+        private float _resetStatsFPS = 1;
+
+        private int _lastFPSValue = -1;
+        private int _lastAverageValue = -1;
+        private int _lastMinValue = -1;
+        private int _lastMaxValue = -1;
+        
+        private int _lastAllocatedValue = -1;
+        private int _lastMonoValue = -1;
+        private int _lastReservedValue = -1;
+
+        private float _allocated;
+        private float _mono;
+        private float _reserved;
+
+        private bool _firstTime;
         
         private void Start()
         {
@@ -61,8 +76,30 @@ namespace JD.FPS
             _fpsGraph.SetThresholds(Good, Bad);
         }
 
+        private void OnEnable()
+        {
+            _resetStatsFPS = 1;
+            _firstTime = true;
+        }
+
         private void Update()
         {
+            // RAM
+            _allocated = Profiler.GetTotalAllocatedMemoryLong() / 1048576f;
+            _mono = Profiler.GetMonoUsedSizeLong() / 1048576f;
+            _reserved = Profiler.GetTotalReservedMemoryLong() / 1048576f;
+
+            var maxRam = 0f;
+            if (_allocated > maxRam) maxRam = _allocated;
+            if (_mono > maxRam) maxRam = _mono;
+            if (_reserved > maxRam) maxRam = _reserved;
+
+            maxRam *= 1.25f;
+            
+            _allocatedGraph.Add(_allocated, maxRam);
+            _monoGraph.Add(_mono, maxRam);
+            _reservedGraph.Add(_reserved, maxRam);
+            
             // FPS
             var fps = (int) (1 / Time.unscaledDeltaTime);
             
@@ -78,9 +115,48 @@ namespace JD.FPS
                 _averageCount = 1;
                 _averageTotal = fps;
                 
+                // Update Texts only every 1 sec. No need for every frame and was consuming quite a lot of CPU...
+                
+                // Update FPS
+                // These produce no gc alloc (but will show alloc in editor mode)
+                if (_lastFPSValue != (int) _averageFPS) FPSValue.SetText("{0}", (int) _averageFPS); //fps);
+                if (_lastAverageValue != (int) _averageFPS) AverageValue.SetText("{0}", (int) _averageFPS);
+                if (_lastMinValue != (int) _minFPS) MinValue.SetText("{0}", (int) _minFPS);
+                if (_lastMaxValue != (int) _maxFPS) MaxValue.SetText("{0}", (int) _maxFPS);
+
+                AverageValue.color = _averageFPS > Good ? _goodColor : _averageFPS > Bad ? _okColor : _badColor;
+                MinValue.color = _minFPS > Good ? _goodColor : _minFPS > Bad ? _okColor : _badColor;
+                MaxValue.color = _maxFPS > Good ? _goodColor : _maxFPS > Bad ? _okColor : _badColor;
+                
+                _lastFPSValue = (int) _averageFPS;
+                _lastAverageValue = (int) _averageFPS;
+                _lastMinValue = (int) _minFPS;
+                _lastMaxValue = (int) _maxFPS;
+
+                // Update RAM
+                // No alloc in build
+                if (_lastAllocatedValue != (int) (_allocated * 100)) AllocatedValue.SetText("{0:2} A", _allocated);
+                if (_lastMonoValue != (int) (_mono * 100)) MonoValue.SetText("{0:2} M", _mono);
+                if (_lastReservedValue != (int) (_reserved * 100)) ReservedValue.SetText("{0:2} R", _reserved);
+                
+                _lastAllocatedValue = (int) (_allocated * 100);
+                _lastMonoValue = (int) (_mono * 100);
+                _lastReservedValue = (int) (_reserved * 100);
+                
+                AllocatedValue.color = _allocatedColor;
+                MonoValue.color = _monoColor;
+                ReservedValue.color = _reservedColor;
+                
+                // Reset
                 _maxFPS = 0;
                 _minFPS = float.MaxValue;
                 _maxFPS = 0;
+                
+                if (_firstTime)
+                {
+                    _firstTime = false;
+                    fps = 60;
+                }
             }
             else
             {
@@ -96,41 +172,6 @@ namespace JD.FPS
 
             _fpsGraph.SetAverage(_averageFPS);
             _fpsGraph.Add(fps, _maxFPS * 1.20f);
-
-            // These produce no gc alloc (but will show alloc in editor mode)
-            FPSValue.SetText("{0}", (int) fps);
-            AverageValue.SetText("{0}", (int) _averageFPS);
-            MinValue.SetText("{0}", (int) _minFPS);
-            MaxValue.SetText("{0}", (int) _maxFPS);
-
-            AverageValue.color = _averageFPS > Good ? _goodColor : _averageFPS > Bad ? _okColor : _badColor;
-            MinValue.color = _minFPS > Good ? _goodColor : _minFPS > Bad ? _okColor : _badColor;
-            MaxValue.color = _maxFPS > Good ? _goodColor : _maxFPS > Bad ? _okColor : _badColor;
-
-            // RAM
-            var allocated = Profiler.GetTotalAllocatedMemoryLong() / 1048576f;
-            var mono = Profiler.GetMonoUsedSizeLong() / 1048576f;
-            var reserved = Profiler.GetTotalReservedMemoryLong() / 1048576f;
-
-            var maxRam = 0f;
-            if (allocated > maxRam) maxRam = allocated;
-            if (mono > maxRam) maxRam = mono;
-            if (reserved > maxRam) maxRam = reserved;
-
-            maxRam *= 1.25f;
-            
-            _allocatedGraph.Add(allocated, maxRam);
-            _monoGraph.Add(mono, maxRam);
-            _reservedGraph.Add(reserved, maxRam);
-            
-            // No alloc in build
-            AllocatedValue.SetText("{0:2} A", allocated);
-            MonoValue.SetText("{0:2} M", mono);
-            ReservedValue.SetText("{0:2} R", reserved);
-
-            AllocatedValue.color = _allocatedColor;
-            MonoValue.color = _monoColor;
-            ReservedValue.color = _reservedColor;
         }
 
         private void OnDestroy()
